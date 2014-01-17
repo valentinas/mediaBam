@@ -1,7 +1,7 @@
 What is this?
 ===================
 
-A solution integrating uTorrent, Plex media server and torrent search. Lets you downiload your media from a torrent network in two clicks.
+A solution integrating uTorrent, Plex media server and torrent search. Lets you download your media from a torrent network in two clicks.
 
 Dependecies
 ===================
