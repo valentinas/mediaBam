@@ -1,4 +1,4 @@
-import time, urllib2, base64
+import time, urllib2, base64, ConfigParser
 from bs4 import BeautifulSoup as bs
 
 config = ConfigParser.ConfigParser()
