@@ -1,4 +1,4 @@
-import time, urllib2, base64, ConfigParser
+import time, urllib2, base64, ConfigParser, json
 from bs4 import BeautifulSoup as bs
 
 config = ConfigParser.ConfigParser()
@@ -36,6 +36,10 @@ class Utorrent:
         result = ""
         try:
             result = urllib2.urlopen(addTorrentRequest).read()
+            parsedResult = json.loads(result)
+            #result should be: {"build":123456}
+            if(len(parsedResult == 1) and hasattr(parsedResult, 'build')):
+		return {'success': True}
         except urllib2.HTTPError, err:
             result = err
-        return result
+        return {'success': False, "details": result}
