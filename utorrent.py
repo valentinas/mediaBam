@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup as bs
 
 config = ConfigParser.ConfigParser()
 config.read("utorrent.config")
-url = config.get("webui","url") + '/gui/' 
+webUiUrl = config.get("webui","url") + '/gui/' 
 authString = base64.b64encode(config.get("webui","username") + ':' + config.get("webui","password"))
 
 class Utorrent:
