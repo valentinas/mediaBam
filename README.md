@@ -1,3 +1,7 @@
+Is this for you
+===================
+NO. This is for me. Unless you are comfortable with writing a bit of python code. Then yes. At some point in the future this might evolve to something appropriate for wider audiences, but at the moment it's just a script that helps me to save time (yeah, right http://imgs.xkcd.com/comics/automation.png)
+
 What is this?
 ===================
 
