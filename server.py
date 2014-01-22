@@ -1,4 +1,4 @@
-import BaseHTTPServer, tpb, sys, ConfigParser, thread
+import BaseHTTPServer, tpb, sys, ConfigParser, thread, json, codecs
 from urlparse import urlparse, parse_qs
 from utorrent import Utorrent as ut
 
@@ -9,27 +9,38 @@ port = int(config.get("params","port"))
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
         ip = self.server.socket.getsockname()[0]
+        parsedUrl = urlparse(self.path)
+        parameters=parse_qs(parsedUrl.query)
+        #if it's not a query string, then I'll just serve a file
+        allowedPaths = ['/templates/js.js']
+        if(self.path.find('?') == -1 and self.path in allowedPaths):
+           self.send_response(200, 'OK')
+           self.send_header('Content-type', 'text/javascript')
+           self.end_headers()
+           self.wfile.write(open('.' + self.path).read())
+           return
         self.send_response(200)
         self.send_header("content-type", "text/html")
         self.end_headers()
-        parameters=parse_qs(urlparse(self.path).query)
-        result = '<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>\
-                  <script type="text/javascript">\
-                      jQuery(function(){jQuery("select.download").change(function(){jQuery.ajax({url:jQuery(this).val()})})})</script>\
-                  <form action="/" method="get">\
-                  search: <input type="text" name="search"><br>\
-                  <input type="submit" value="Submit">\
-                  </form>'
+        searchResultsHTML = u'' 
         if("search" in parameters):
-            result += '<table><thead><tr><td>Title</td><td>Details</td><td>Seeders</td><td>Leechers</td><td>Download to</td></tr></thead>'
+            searchResultsTemplate = codecs.open('templates/searchResult.tpl', encoding='utf-8').read()
             results = tpb.search(parameters['search'][0])
+            downloadApiUrl = u'http://%s:%s/?download={magnetLink}' % (ip, port)
             for res in results:
-                result += u'<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td><select class="download"><option>===select===</option>><option value="{5}{4}&path=%2Fvideo%2Fmovies">movies</option><option value="{5}{4}&path=%2Fvideo%2Ftv">tv</option><option value="{5}{4}&path=%2Fmusic">music</option></select></td></tr>'.format( res['title'],  res['details'], res['seeders'], res['leechers'], res['downloadLink'], 'http://%s:%s/?download=' % (ip, port)) 
-            result += '</tbody></table>'
+                searchResultsHTML += searchResultsTemplate.format(
+                    title = res['title'],
+                    details = res['details'],
+                    seeders = res['seeders'],
+                    leechers = res['leechers'],
+                    downloadUrl = downloadApiUrl.format(magnetLink = res['downloadLink'])) 
         if("download" in parameters):
             client = ut()
             result = client.download(parameters['download'][0] + '&path=' +  parameters['path'][0])
-        self.wfile.write(result.encode('UTF-8'))
+            self.wfile.write(result.encode('UTF-8'))
+            return
+        mainTemplate = codecs.open('templates/main.tpl', encoding='utf-8').read()
+        self.wfile.write(mainTemplate.format(searchResultsHTML = searchResultsHTML).encode('utf-8'))
 
 HandlerClass = RequestHandler 
 HandlerClass.protocol_version = "HTTP/1.0" 
