@@ -2,9 +2,11 @@
     <head>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script type="text/javascript" src="templates/js.js"></script>
+        <link rel="stylesheet" type="text/css" href="templates/style.css"></link>
     </head>
     <body>
         <form action="/" method="get">
+            {status}
             <p>
                 Search: <input type="text" name="search">
                 <br />

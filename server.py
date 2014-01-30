@@ -1,4 +1,4 @@
-import BaseHTTPServer, tpb, sys, ConfigParser, thread, json, codecs
+import BaseHTTPServer, tpb, sys, ConfigParser, thread, json, codecs, torrent, pprint
 from urlparse import urlparse, parse_qs
 from utorrent import Utorrent as ut
 
@@ -12,7 +12,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         parsedUrl = urlparse(self.path)
         parameters=parse_qs(parsedUrl.query)
         #if it's not a query string, then I'll just serve a file
-        allowedPaths = ['/templates/js.js']
+        allowedPaths = ['/templates/js.js', '/templates/style.css']
         if(self.path.find('?') == -1 and self.path in allowedPaths):
            self.send_response(200, 'OK')
            self.send_header('Content-type', 'text/javascript')
@@ -21,26 +21,30 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
            return
         self.send_response(200)
         self.send_header("content-type", "text/html")
+        self.send_header("Access-Control-Allow-Origin", 'http://localhost')
         self.end_headers()
         searchResultsHTML = u'' 
         if("search" in parameters):
             searchResultsTemplate = codecs.open('templates/searchResult.tpl', encoding='utf-8').read()
             results = tpb.search(parameters['search'][0])
             downloadApiUrl = u'http://%s:%s/?download={magnetLink}' % (ip, port)
+            rowId = 0
             for res in results:
+                rowId += 1
                 searchResultsHTML += searchResultsTemplate.format(
                     title = res['title'],
                     details = res['details'],
                     seeders = res['seeders'],
                     leechers = res['leechers'],
-                    downloadUrl = downloadApiUrl.format(magnetLink = res['downloadLink'])) 
+                    downloadUrl = downloadApiUrl.format(magnetLink = res['downloadLink']+'&rowId='+str(rowId)),
+                    rowId = rowId) 
         if("download" in parameters):
-            client = ut()
-            result = client.download(parameters['download'][0] + '&path=' +  parameters['path'][0])
-            self.wfile.write(result.encode('UTF-8'))
+            torrent.addMagnetLink(parameters['download'][0], parameters['path'][0])
+            self.wfile.write('{"success": true, "rowId":"row%s"}'%parameters['rowId'][0])
             return
         mainTemplate = codecs.open('templates/main.tpl', encoding='utf-8').read()
-        self.wfile.write(mainTemplate.format(searchResultsHTML = searchResultsHTML).encode('utf-8'))
+        status = pprint.pformat(torrent.getStatus())
+        self.wfile.write(mainTemplate.format(searchResultsHTML = searchResultsHTML, status = status).encode('utf-8'))
 
 HandlerClass = RequestHandler 
 HandlerClass.protocol_version = "HTTP/1.0" 
