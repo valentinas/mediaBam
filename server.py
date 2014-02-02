@@ -1,4 +1,4 @@
-import BaseHTTPServer, tpb, sys, ConfigParser, thread, json, codecs, torrent, pprint
+import BaseHTTPServer, tpb, sys, ConfigParser, thread, json, codecs, torrent, pprint, urllib2
 from urlparse import urlparse, parse_qs
 from utorrent import Utorrent as ut
 
@@ -36,7 +36,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     details = res['details'],
                     seeders = res['seeders'],
                     leechers = res['leechers'],
-                    downloadUrl = downloadApiUrl.format(magnetLink = res['downloadLink']+'&rowId='+str(rowId)),
+                    downloadUrl = downloadApiUrl.format(magnetLink = urllib2.quote(res['downloadLink'])+'&rowId='+str(rowId)),
                     rowId = rowId) 
         if("download" in parameters):
             torrent.addMagnetLink(parameters['download'][0], parameters['path'][0])
