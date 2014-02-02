@@ -12,6 +12,11 @@ def getStatus():
     stateString = ['queued', 'checking', 'downloading metadata', \
                     'downloading', 'finished', 'seeding', 'allocating']
     result = [{\
+                'is_DHT_running': str(session.is_dht_running()),\
+                'number_of_dht_nodes': str(session.status().dht_nodes),\
+                'error': i.status().error,\
+                'paused': str(i.status().paused),\
+                'number_of_trackers': str(len(i.trackers())),\
                 'name': i.name(),\
                 'hash': i.info_hash(),\
                 'progress': '%.2f%%' % (i.status().progress * 100), \
@@ -23,16 +28,12 @@ def getStatus():
     return(result)
 
 def magnetWorker(link, path):
-    print(path)
     params = {
         'save_path': path,
+        'paused': False,
+        'auto_managed': False,
     }
     handle = lt.add_magnet_uri(session, link, params)
-    while (not handle.has_metadata()):
-        time.sleep(1)
-    info = handle.get_torrent_info()
-    handle = session.add_torrent({'ti': info, 'save_path': path})
-
 
 session = lt.session()
 session.listen_on(6881, 6891)
