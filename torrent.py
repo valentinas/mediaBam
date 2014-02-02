@@ -35,5 +35,13 @@ def magnetWorker(link, path):
     }
     handle = lt.add_magnet_uri(session, link, params)
 
+def cleaningWorker():
+    while 1:
+        for t in  session.get_torrents():
+            if(t.status().state == 5):
+                session.remove_torrent(t)
+        time.sleep(10)
+
 session = lt.session()
 session.listen_on(6881, 6891)
+thread.start_new_thread(cleaningWorker, ())
