@@ -1,6 +1,5 @@
 import BaseHTTPServer, tpb, sys, ConfigParser, thread, json, codecs, torrent, pprint, urllib2
 from urlparse import urlparse, parse_qs
-from utorrent import Utorrent as ut
 
 config = ConfigParser.ConfigParser()
 config.read("server.config")
