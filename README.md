@@ -9,11 +9,11 @@ A solution integrating uTorrent, Plex media server and torrent search. Lets you 
 
 Dependecies
 ===================
-You will need at least utorrent web ui running for this to work. I use plex media server to view the media later, but it doesnt interact with meadiaBam yet, so it's not required
+You'll need to have libtorrent installed in your system. Other than that it's pretty much dependency free.
 
 Installation
 ===================
-- Open tpb.config, server.config and utorrent.config in a text editor and set the desire settings.
+- Open tpb.config, server.config and torrent.config in a text editor and set the desire settings.
 - run 'python server.py' in the mediaBam directory
 - If you can't access it from another machine - make sure that the port is open on your firewall/antivirus.
 
